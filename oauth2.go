@@ -33,19 +33,8 @@ func auth(c web.C, w http.ResponseWriter, r *http.Request) {
   // encode values into URL encoded form and append to endpoint
   authorizeEndpoint.RawQuery = params.Encode()
 
-  // GET the endpoint
-  resp, err := http.Get(authorizeEndpoint.String())
-  if err != nil {
-    fmt.Println(err)
-  }
-  defer resp.Body.Close()
-  body, err := ioutil.ReadAll(resp.Body)
-  if err != nil {
-    fmt.Println(err)
-  }
-
-  // print the response body
-  fmt.Println(string(body))
+  // http.Redirect(authorizeEndpoint.String())
+  http.Redirect(w, r, authorizeEndpoint.String(), http.StatusMovedPermanently)
 
 }
 
@@ -54,3 +43,21 @@ func main() {
   goji.Get("/home/:name", home)
   goji.Serve()
 }
+
+
+
+
+
+  // GET the endpoint
+  // resp, err := http.Get(authorizeEndpoint.String())
+  // if err != nil {
+  //   fmt.Println(err)
+  // }
+  // defer resp.Body.Close()
+  // body, err := ioutil.ReadAll(resp.Body)
+  // if err != nil {
+  //   fmt.Println(err)
+  // }
+
+  // print the response body
+  // fmt.Println(string(body))

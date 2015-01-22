@@ -6,6 +6,7 @@ import (
   "net/url"
   "io/ioutil"
   "encoding/json"
+  "flag"
 
   "github.com/zenazn/goji"
   "github.com/zenazn/goji/web"
@@ -23,6 +24,9 @@ type Response struct {
 
 // User authorizes app
 func auth(c web.C, w http.ResponseWriter, r *http.Request) {
+  // client := *Client
+  // fmt.Println(client)
+  // fmt.Println("This is the Client",*Client)
   // parse Instagram's authorize endpoint
   authorizeEndpoint, _ := url.Parse("https://api.instagram.com/oauth/authorize/")
 
@@ -83,7 +87,39 @@ func home(c web.C, w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+  getClientInfo()
+
   goji.Get("/instagram/auth", auth)
   goji.Get("/home/:name", home)
   goji.Serve()
+}
+
+type Client struct {
+  clientId     string
+  clientSecret string
+}
+
+func getClientInfo() *Client{
+
+  var clientId *string = flag.String(
+    "clientId",
+    "",
+    "CLIENT ID from http://instagram.com/developer/clients/manage/")
+
+  var clientSecret *string = flag.String(
+    "clientSecret",
+    "",
+    "CLIENT ID from http://instagram.com/developer/clients/manage/")
+
+  flag.Parse()
+
+  client := &Client{
+    clientId: *clientId,
+    clientSecret: *clientSecret,
+  }
+
+  fmt.Println(client)
+  return client
+
 }

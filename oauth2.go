@@ -7,6 +7,7 @@ import (
   "io/ioutil"
   "encoding/json"
   "flag"
+  "os"
 
   "github.com/zenazn/goji"
   "github.com/zenazn/goji/web"
@@ -23,24 +24,45 @@ type Response struct {
 }
 
 // User authorizes app
-func auth(c web.C, w http.ResponseWriter, r *http.Request) {
-  // client := *Client
-  // fmt.Println(client)
-  // fmt.Println("This is the Client",*Client)
+func auth() {
+  /////////// Get User Info from command line and define struct ///////////
+  var clientId *string = flag.String(
+    "clientId",
+    "",
+    "CLIENT ID from http://instagram.com/developer/clients/manage/")
+
+  var clientSecret *string = flag.String(
+    "clientSecret",
+    "",
+    "CLIENT ID from http://instagram.com/developer/clients/manage/")
+
+  flag.Parse()
+
+  if len(*clientId) == 0 || len(*clientSecret) == 0 {
+    fmt.Println("Please provide your Instagram CLIENT ID and CLIENT SECRET")
+    os.Exit(1)
+  }
+
+  client := &Client{
+    clientId: *clientId,
+    clientSecret: *clientSecret,
+  }
+  ///////////////////////////////////////////////////////////////////////
+
   // parse Instagram's authorize endpoint
   authorizeEndpoint, _ := url.Parse("https://api.instagram.com/oauth/authorize/")
 
   // create necessary params for endpoint
   params := url.Values{}
-  params.Add("client_id", clientId)
+  params.Add("client_id", client.clientId)
   params.Add("redirect_uri", redirectURI)
   params.Add("response_type", "code")
 
   // encode values into URL encoded form and append to endpoint
   authorizeEndpoint.RawQuery = params.Encode()
 
-  // redirect to to configured authorize endpoint
-  http.Redirect(w, r, authorizeEndpoint.String(), http.StatusMovedPermanently)
+  // Give user configured IG Authorization endpoint
+  fmt.Println("Go to: " + authorizeEndpoint.String())
 
 }
 
@@ -83,14 +105,17 @@ func home(c web.C, w http.ResponseWriter, r *http.Request) {
   fmt.Println("fullName:",userInfo["full_name"])
   fmt.Println("userName:",userInfo["username"])
 
-  fmt.Fprintf(w, "Hello, %s!", c.URLParams["name"])
+  fmt.Fprintf(w, "Hello, %s!\n", c.URLParams["name"])
+  fmt.Fprintf(w, "Your access token is: %s\n", accessToken)
+  fmt.Fprintf(w, "User's username: %s\n", userInfo["username"])
+  fmt.Fprintf(w, "User's full name: %s\n", userInfo["full_name"])
 }
 
 func main() {
 
-  getClientInfo()
+  auth()
 
-  goji.Get("/instagram/auth", auth)
+  // goji.Get("/instagram/auth", auth)
   goji.Get("/home/:name", home)
   goji.Serve()
 }
@@ -98,28 +123,4 @@ func main() {
 type Client struct {
   clientId     string
   clientSecret string
-}
-
-func getClientInfo() *Client{
-
-  var clientId *string = flag.String(
-    "clientId",
-    "",
-    "CLIENT ID from http://instagram.com/developer/clients/manage/")
-
-  var clientSecret *string = flag.String(
-    "clientSecret",
-    "",
-    "CLIENT ID from http://instagram.com/developer/clients/manage/")
-
-  flag.Parse()
-
-  client := &Client{
-    clientId: *clientId,
-    clientSecret: *clientSecret,
-  }
-
-  fmt.Println(client)
-  return client
-
 }

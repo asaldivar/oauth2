@@ -14,9 +14,11 @@ import (
 )
 
 const (
-  clientId     = /* <CLIENT ID> */ 
-  clientSecret = /* <CLIENT SECRET> */
-  redirectURI  = /* <REDIRECT URI> */
+  clientId     = "de761aa8f066479fb7ea069396ae50b5"
+  // clientId     = /* <CLIENT ID> */ 
+  // clientSecret = /* <CLIENT SECRET> */
+  clientSecret = "0dd10b36d467450aaad644ce44e51028"
+  redirectURI  = "http://localhost:8000/home/alex"
 )
 
 type Client struct {
@@ -39,8 +41,8 @@ type Response struct {
 }
 
 // User authorizes app
-func auth() string{
-  /////////// Get User Info from command line and define struct ///////////
+func auth() {
+  // Get User Info from command line
   var clientId *string = flag.String(
     "clientId",
     "",
@@ -63,9 +65,8 @@ func auth() string{
     os.Exit(1)
   }
 
-  // create client
+  // create Client
   client := NewClient(*clientId, *clientSecret, *redirectURI)
-  ///////////////////////////////////////////////////////////////////////
 
   // parse Instagram's authorize endpoint
   authorizeEndpoint, _ := url.Parse("https://api.instagram.com/oauth/authorize/")
@@ -81,7 +82,6 @@ func auth() string{
 
   // Give user configured IG Authorization endpoint
   fmt.Printf("\nGo to: %s", authorizeEndpoint.String() + "\n\n")
-  return authorizeEndpoint.String()
 
 }
 
@@ -89,7 +89,7 @@ func auth() string{
 func home(c web.C, w http.ResponseWriter, r *http.Request) {
   // grab code value from URL
   code := r.URL.Query()["code"][0]
-  fmt.Println("code",code)
+
   // ping access_token endpoint with appropriate data to get public user info and access token which can be used for future requests
   resp, err := http.PostForm("https://api.instagram.com/oauth/access_token",
     url.Values{
@@ -119,9 +119,9 @@ func home(c web.C, w http.ResponseWriter, r *http.Request) {
   accessToken := v.Data["access_token"]
   userInfo    := v.Data["user"].(map[string]interface{})
 
-  fmt.Println("accessToken:",accessToken)
-  fmt.Println("fullName:",userInfo["full_name"])
-  fmt.Println("userName:",userInfo["username"])
+  fmt.Printf("\naccessToken: %s", accessToken)
+  fmt.Printf("\nfullName: %s", userInfo["full_name"])
+  fmt.Printf("\nuserName: %s", userInfo["username"].(string) + "\n\n")
 
   fmt.Fprintf(w, "Hello, %s!\n", c.URLParams["name"])
   fmt.Fprintf(w, "Your access token is: %s\n", accessToken)

@@ -14,17 +14,32 @@ import (
 )
 
 const (
-  clientId     = "de761aa8f066479fb7ea069396ae50b5"
-  clientSecret = "0dd10b36d467450aaad644ce44e51028"
-  redirectURI  = "http://localhost:8000/home/alex"
+  clientId     = /* <CLIENT ID> */ 
+  clientSecret = /* <CLIENT SECRET> */
+  redirectURI  = /* <REDIRECT URI> */
 )
+
+type Client struct {
+  clientId     string
+  clientSecret string
+  redirectURI  string
+  code         string
+}
+
+func NewClient(clientId, clientSecret, redirectURI string) *Client {
+  return &Client{
+    clientId:     clientId,
+    clientSecret: clientSecret,
+    redirectURI:  redirectURI,
+  }
+}
 
 type Response struct {
   Data map[string]interface{}
 }
 
 // User authorizes app
-func auth() {
+func auth() string{
   /////////// Get User Info from command line and define struct ///////////
   var clientId *string = flag.String(
     "clientId",
@@ -34,19 +49,22 @@ func auth() {
   var clientSecret *string = flag.String(
     "clientSecret",
     "",
-    "CLIENT ID from http://instagram.com/developer/clients/manage/")
+    "CLIENT SECRET from http://instagram.com/developer/clients/manage/")
+
+  var redirectURI = flag.String(
+    "redirectURI",
+    "",
+    "REDIRECT URI from http://instagram.com/developer/clients/manage/")
 
   flag.Parse()
 
-  if len(*clientId) == 0 || len(*clientSecret) == 0 {
-    fmt.Println("Please provide your Instagram CLIENT ID and CLIENT SECRET")
+  if len(*clientId) == 0 || len(*clientSecret) == 0 || len(*redirectURI) == 0 {
+    fmt.Println("Please provide your Instagram CLIENT ID, CLIENT SECRET and REDIRECT URI")
     os.Exit(1)
   }
 
-  client := &Client{
-    clientId: *clientId,
-    clientSecret: *clientSecret,
-  }
+  // create client
+  client := NewClient(*clientId, *clientSecret, *redirectURI)
   ///////////////////////////////////////////////////////////////////////
 
   // parse Instagram's authorize endpoint
@@ -55,23 +73,23 @@ func auth() {
   // create necessary params for endpoint
   params := url.Values{}
   params.Add("client_id", client.clientId)
-  params.Add("redirect_uri", redirectURI)
+  params.Add("redirect_uri", client.redirectURI)
   params.Add("response_type", "code")
 
   // encode values into URL encoded form and append to endpoint
   authorizeEndpoint.RawQuery = params.Encode()
 
   // Give user configured IG Authorization endpoint
-  fmt.Println("Go to: " + authorizeEndpoint.String())
+  fmt.Printf("\nGo to: %s", authorizeEndpoint.String() + "\n\n")
+  return authorizeEndpoint.String()
 
 }
 
 // request access token from service provider
 func home(c web.C, w http.ResponseWriter, r *http.Request) {
-
   // grab code value from URL
   code := r.URL.Query()["code"][0]
-
+  fmt.Println("code",code)
   // ping access_token endpoint with appropriate data to get public user info and access token which can be used for future requests
   resp, err := http.PostForm("https://api.instagram.com/oauth/access_token",
     url.Values{
@@ -112,15 +130,7 @@ func home(c web.C, w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
   auth()
-
-  // goji.Get("/instagram/auth", auth)
-  goji.Get("/home/:name", home)
+  goji.Get("/home/:name", home) 
   goji.Serve()
-}
-
-type Client struct {
-  clientId     string
-  clientSecret string
 }

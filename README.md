@@ -14,7 +14,7 @@ Then, on lines 17-19 insert your `CLIENT ID`, `CLIENT SECRET` and `REDIRECT URI`
 
 After this configuration is done you run the command:
 
-`go run oauth2.go --clientId <CLIENT ID> --clientSecret <CLIENT SECRET> --redirectURI <REDIRECT URI`
+`go run oauth2.go --clientId <CLIENT ID> --clientSecret <CLIENT SECRET> --redirectURI <REDIRECT URI>`
 
 Follow the steps in the terminal and the User's full name and username will be printed to the console and viewed in the browser, as well as the access token which you can use to hit other endpoints for more data.
 

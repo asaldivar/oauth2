@@ -10,7 +10,13 @@ First, you'll need to setup your [instagram client](http://instagram.com/develop
 goji.Get("/home/:name", home)
 ```
 
-Then, on lines 17-19 insert your `CLIENT ID`, `CLIENT SECRET` and `REDIRECT URI`.
+Then, on lines 17-19 insert your `CLIENT ID`, `CLIENT SECRET` and `REDIRECT URI`:
+
+```
+  clientId     = /* <CLIENT ID> */ 
+  clientSecret = /* <CLIENT SECRET> */
+  redirectURI  = /* <CLIENT SECRET> */
+```
 
 After this configuration is done you run the command:
 

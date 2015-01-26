@@ -14,11 +14,9 @@ import (
 )
 
 const (
-  clientId     = "de761aa8f066479fb7ea069396ae50b5"
   // clientId     = /* <CLIENT ID> */ 
   // clientSecret = /* <CLIENT SECRET> */
-  clientSecret = "0dd10b36d467450aaad644ce44e51028"
-  redirectURI  = "http://localhost:8000/home/alex"
+  // redirectURI  = /* <CLIENT SECRET> */
 )
 
 type Client struct {
